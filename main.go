@@ -26,14 +26,18 @@ func (l *Location) Scan(value interface{}) error {
         return errors.New("location cannot be null")
     }
 
-    str, ok := value.(string)
-    if !ok {
-        return errors.New("invalid location format")
+    switch v := value.(type) {
+    case string:
+        str := strings.Trim(v, "()")
+        _, err := fmt.Sscanf(str, "%f,%f", &l[0], &l[1])
+        return err
+    case []byte:
+        str := strings.Trim(string(v), "()")
+        _, err := fmt.Sscanf(str, "%f,%f", &l[0], &l[1])
+        return err
+    default:
+        return fmt.Errorf("unsupported location format: %T", value)
     }
-
-    str = strings.Trim(str, "()")
-    _, err := fmt.Sscanf(str, "%f,%f", &l[0], &l[1])
-    return err
 }
 
 type Festival struct {
